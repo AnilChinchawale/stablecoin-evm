@@ -62,6 +62,14 @@ module.exports = {
       provider: infuraProvider("ropsten"),
       network_id: 3,
     },
+    xdc: {
+      provider: infuraProvider("https://rpc.ankr.com/xdc", true),
+      network_id: 50,
+    },
+    xdcapothem: {
+      provider: infuraProvider("https://earpc.apothem.network", true),
+      network_id: 51,
+    },
   },
   mocha: {
     timeout: 60000, // prevents tests from failing when pc is under heavy load
@@ -75,7 +83,7 @@ module.exports = {
       : "./migrations/direct",
 };
 
-function infuraProvider(network) {
+function infuraProvider(network, jsonRPC = false) {
   return () => {
     if (!config.MNEMONIC) {
       console.error("A valid MNEMONIC must be provided in config.js");
@@ -85,9 +93,10 @@ function infuraProvider(network) {
       console.error("A valid INFURA_KEY must be provided in config.js");
       process.exit(1);
     }
-    return new HDWalletProvider(
-      config.MNEMONIC,
-      `https://${network}.infura.io/v3/${config.INFURA_KEY}`
-    );
+    let defaultRPC = `https://${network}.infura.io/v3/${config.INFURA_KEY}`;
+    if (jsonRPC) {
+      defaultRPC = network;
+    }
+    return new HDWalletProvider(config.MNEMONIC, defaultRPC);
   };
 }
